@@ -1,0 +1,49 @@
+{
+  "name": "iccqr",
+  "version": "1.0.0",
+  "description": "Turn a display's ICC profile into a printable QR calibration marker, and turn the scanned link back into the .icc file.",
+  "keywords": ["icc", "color-profile", "display-calibration", "qr-code", "svg", "colorimetry", "monitor", "cli"],
+  "homepage": "https://iccqr.github.io/",
+  "bugs": {
+    "url": "https://github.com/iccqr/iccqr/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/iccqr/iccqr.git"
+  },
+  "license": "0BSD",
+  "main": "lib/index.js",
+  "exports": {
+    ".": "./lib/index.js",
+    "./dist/iccqr.js": "./dist/iccqr.js",
+    "./dist/iccqr.min.js": "./dist/iccqr.min.js",
+    "./package.json": "./package.json"
+  },
+  "bin": {
+    "iccqr": "bin/iccqr.js"
+  },
+  "files": [
+    "bin",
+    "lib",
+    "dist",
+    "licenses",
+    "FORMAT.md"
+  ],
+  "scripts": {
+    "bundle": "node scripts/bundle.js",
+    "prepack": "node scripts/bundle.js",
+    "test": "node --test test/core.test.js test/fuzz.test.js test/marker.test.js test/cli.test.js test/bundle.test.js"
+  },
+  "engines": {
+    "node": ">=20.12"
+  },
+  "dependencies": {
+    "qrcode-generator": "1.4.4"
+  },
+  "devDependencies": {
+    "@fontsource-variable/archivo": "5.3.0",
+    "@fontsource/ibm-plex-mono": "5.3.0",
+    "jsqr": "1.4.0",
+    "terser": "5.51.2"
+  }
+}

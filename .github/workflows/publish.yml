@@ -1,0 +1,44 @@
+# Publishes to npm when a version tag (v1.2.3) is pushed, using npm trusted publishing:
+# no npm token is stored anywhere. npm checks that this workflow, in this repository,
+# is the one allowed to publish iccqr, and adds a provenance statement to the release.
+# Setup (once, after the first manual publish) is described in RELEASING.md.
+name: Publish
+
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: read
+  id-token: write  # lets npm verify that the release comes from this workflow
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          registry-url: 'https://registry.npmjs.org'
+      - name: Use npm 11 (trusted publishing needs 11.5.1 or later)
+        run: npm install -g npm@11.21.1
+      - name: Check that the tag matches package.json
+        id: version
+        run: |
+          version="$(node -p "require('./package.json').version")"
+          if [ "${GITHUB_REF_NAME}" != "v${version}" ]; then
+            echo "::error::Tag ${GITHUB_REF_NAME} doesn't match package.json version ${version}."
+            exit 1
+          fi
+          # A version published by hand (like the first one) is skipped, not an error.
+          if npm view "iccqr@${version}" version >/dev/null 2>&1; then
+            echo "::notice::iccqr ${version} is already on npm. Nothing to publish."
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+          fi
+      - if: steps.version.outputs.skip != 'true'
+        run: npm ci
+      - if: steps.version.outputs.skip != 'true'
+        run: npm test
+      - if: steps.version.outputs.skip != 'true'
+        run: npm publish --access public
